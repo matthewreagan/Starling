@@ -25,7 +25,7 @@ Starling was developed while working on [Tank Wars](http://sound-of-silence.com/
 
 ```
 extension SoundIdentifier {
-    static let alarm = SoundIdentifier(name: "alarm")
+    static let alarm = SoundIdentifier("alarm")
 }
 ```
 
