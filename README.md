@@ -53,6 +53,10 @@ In some cases you may wish to prevent a specific sound effect from overlapping i
 
 `starling.play(.alarm, allowOverlap: false)`
 
+### Xcode Integration
+
+The demo project includes 3 targets: an **iOS framework**, a **macOS framework**, and a simple **Mac demo app**. You can either include and link against the compiled framework in the usual manner, or you can simply include [Starling.swift](https://github.com/matthewreagan/Starling/blob/master/Starling/Starling.swift) in your project, which works on both platforms.
+
 ### More Info
 
 **Starling** is a very basic API and is still a work-in-progress. Pull requests and feature requests welcome.
