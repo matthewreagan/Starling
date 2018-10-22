@@ -138,20 +138,20 @@ public class Starling {
     
     private func soundIsCurrentlyPlaying(_ sound: SoundIdentifier) -> Bool {
         objc_sync_enter(players)
+        defer { objc_sync_exit(players) }
         // TODO: This O(n) loop could be eliminated by simply keeping a playback tally
         for player in players {
             let state = player.state
             if state.status != .idle && state.sound == sound {
-                objc_sync_exit(players)
                 return true
             }
         }
-        objc_sync_exit(players)
         return false
     }
     
     private func firstAvailablePlayer() -> StarlingAudioPlayer? {
         objc_sync_enter(players)
+        defer { objc_sync_exit(players) }
         let player: StarlingAudioPlayer? = {
             // TODO: A better solution would be to actively manage a pool of available player references
             // For almost every general use case of this library, however, this performance penalty is trivial
@@ -163,7 +163,6 @@ public class Starling {
             }
             return player
         }()
-        objc_sync_exit(players)
         
         return player
     }
