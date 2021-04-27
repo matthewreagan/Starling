@@ -105,6 +105,12 @@ public class Starling {
         }
     }
     
+    public func stop(_ sound: SoundIdentifier) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.performSoundStop(sound)
+        }
+    }
+    
     // MARK: - Internal Functions
     
     private func performSoundPlayback(_ sound: SoundIdentifier, allowOverlap: Bool) {
@@ -135,7 +141,18 @@ public class Starling {
             }
         }
     }
-    
+
+  public func performSoundStop(_ sound: SoundIdentifier)  {
+      objc_sync_enter(players)
+      defer { objc_sync_exit(players) }
+      // TODO: This O(n) loop could be eliminated by simply keeping a playback tally
+      for player in players {
+          if player.state.status != .idle && player.state.sound == sound {
+              player.stop(identifier: sound)
+          }
+      }
+  }
+
     private func soundIsCurrentlyPlaying(_ sound: SoundIdentifier) -> Bool {
         objc_sync_enter(players)
         defer { objc_sync_exit(players) }
@@ -246,6 +263,13 @@ private class StarlingAudioPlayer {
         }
         state = PlayerState(sound: identifier, status: .playing)
         node.play()
+    }
+    
+    func stop(identifier: SoundIdentifier) {
+        if state.status != .idle && state.sound == identifier {
+            node.stop()
+            state = .idle()
+        }
     }
     
     func didCompletePlayback(for sound: SoundIdentifier) {
