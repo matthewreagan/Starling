@@ -33,6 +33,7 @@ enum StarlingError: Error {
     case resourceNotFound(name: String)
     case invalidSoundIdentifier(name: String)
     case audioLoadingFailure
+    case engineIsStopped
 }
 
 public class Starling {
@@ -55,6 +56,10 @@ public class Starling {
     private var files: [String: AVAudioFile]
     private let engine = AVAudioEngine()
 
+    // MARK: - Error handling
+
+    public static var nonFatalErrorHandler: ((Error) -> Void)? = nil
+
     // MARK: - Initializer
     
     public init() {
@@ -64,15 +69,8 @@ public class Starling {
         players = [StarlingAudioPlayer]()
         files = [String: AVAudioFile]()
 
-        for _ in 0..<Starling.defaultStartingPlayerCount {
-            players.append(createNewPlayerAttachedToEngine())
-        }
-        
-        do {
-            try engine.start()
-        } catch {
-            handleNonFatalError(error)
-        }
+        createInitialPlayers()
+        startEngine()
     }
     
     // MARK: - Public API (Loading Sounds)
@@ -100,6 +98,10 @@ public class Starling {
     // MARK: - Public API (Playback)
     
     public func play(_ sound: SoundIdentifier, allowOverlap: Bool = true) {
+        if !engine.isRunning && !startEngine() {
+            resetPlayersAndEngine()
+        }
+        
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.performSoundPlayback(sound, allowOverlap: allowOverlap)
         }
@@ -110,7 +112,7 @@ public class Starling {
             self?.performSoundStop(sound)
         }
     }
-    
+
     // MARK: - Internal Functions
     
     private func performSoundPlayback(_ sound: SoundIdentifier, allowOverlap: Bool) {
@@ -126,8 +128,13 @@ public class Starling {
         }
         
         func performPlaybackOnFirstAvailablePlayer() {
+            guard engine.isRunning else {
+                handleNonFatalError(StarlingError.engineIsStopped)
+                return
+            }
+
             guard let player = firstAvailablePlayer() else { return }
-            
+
             objc_sync_enter(players)
             player.play(audio, identifier: sound)
             objc_sync_exit(players)
@@ -198,9 +205,37 @@ public class Starling {
         files[identifier] = file
         objc_sync_exit(self)
     }
+        
+    private func createInitialPlayers() {
+        for _ in 0..<Starling.defaultStartingPlayerCount {
+            players.append(createNewPlayerAttachedToEngine())
+        }
+    }
+    
+    @discardableResult private func startEngine() -> Bool {
+        do {
+            try engine.start()
+        } catch {
+            handleNonFatalError(error)
+            return false
+        }
+
+        return true
+    }
+    
+    private func resetPlayersAndEngine() {
+        engine.reset()
+        objc_sync_enter(players)
+        players = []
+        createInitialPlayers()
+        objc_sync_exit(players)
+        
+        startEngine()
+    }
     
     private func handleNonFatalError(_ error: Error) {
         print("*** Starling error: \(error)")
+        Self.nonFatalErrorHandler?(error)
     }
     
     // MARK: - Debugging / Diagnostics
@@ -286,6 +321,8 @@ extension StarlingError: CustomStringConvertible {
             return "Invalid identifier. No sound loaded named '\(name)'"
         case .audioLoadingFailure:
             return "Could not load audio data"
+        case .engineIsStopped:
+            return "The audio engine is stopped"
         }
     }
 }
