@@ -75,10 +75,10 @@ public class Starling {
     
     // MARK: - Public API (Loading Sounds)
     
-    public func load(resource: String, type: String, for identifier: SoundIdentifier) {
+    public func load(resource: String, type: String, for identifier: SoundIdentifier, in bundle: Bundle? = nil) {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             if let blockSelf = self {
-                if let url = Bundle.main.url(forResource: resource, withExtension: type) {
+                if let url = (bundle ?? Bundle.main).url(forResource: resource, withExtension: type) {
                     blockSelf.load(sound: url, for: identifier)
                 } else {
                     blockSelf.handleNonFatalError(StarlingError.resourceNotFound(name: "\(resource).\(type)"))
