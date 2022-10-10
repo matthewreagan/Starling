@@ -1,7 +1,5 @@
 # Starling
 
-⚠️ **NOTE:** _This repo is no longer being actively maintained. I try to check for PRs periodically but am not always able to get to them in a timely manner. Please feel free to fork as you wish or use this code for a reference or jumping-off point in your own games / projects. Cheers_
-
 **Starling** is a simple audio library for **iOS + macOS** written in **Swift**. It provides _low-latency_ sound resource playback for games, real-time media solutions, or other performance-critical applications. It is built around Apple's [AVAudioEngine](https://developer.apple.com/documentation/avfoundation/avaudioengine) and simplifies the API in an effort to reduce the amount of boilerplate needed for basic audio playback.
 
 ## Goal
