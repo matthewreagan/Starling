@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		63B12B652925AA8A00F3251E /* ExceptionCatcher in Frameworks */ = {isa = PBXBuildFile; productRef = 63B12B642925AA8A00F3251E /* ExceptionCatcher */; };
+		63B12B672925AAB300F3251E /* ExceptionCatcher in Frameworks */ = {isa = PBXBuildFile; productRef = 63B12B662925AAB300F3251E /* ExceptionCatcher */; };
 		C9E8A473217BABAD00F3FEC5 /* Starling.h in Headers */ = {isa = PBXBuildFile; fileRef = C9E8A471217BABAD00F3FEC5 /* Starling.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C9E8A480217BABBE00F3FEC5 /* Starling_Mac.h in Headers */ = {isa = PBXBuildFile; fileRef = C9E8A47E217BABBE00F3FEC5 /* Starling_Mac.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C9E8A48B217BAC8700F3FEC5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E8A48A217BAC8700F3FEC5 /* AppDelegate.swift */; };
@@ -47,6 +49,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9E8A4A3217BAE5900F3FEC5 /* AVFoundation.framework in Frameworks */,
+				63B12B652925AA8A00F3251E /* ExceptionCatcher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9E8A4A1217BAE5100F3FEC5 /* AVFoundation.framework in Frameworks */,
+				63B12B672925AAB300F3251E /* ExceptionCatcher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +188,9 @@
 			dependencies = (
 			);
 			name = Starling;
+			packageProductDependencies = (
+				63B12B642925AA8A00F3251E /* ExceptionCatcher */,
+			);
 			productName = Starling;
 			productReference = C9E8A46E217BABAD00F3FEC5 /* Starling.framework */;
 			productType = "com.apple.product-type.framework";
@@ -202,6 +209,9 @@
 			dependencies = (
 			);
 			name = "Starling Mac";
+			packageProductDependencies = (
+				63B12B662925AAB300F3251E /* ExceptionCatcher */,
+			);
 			productName = "Starling Mac";
 			productReference = C9E8A47C217BABBE00F3FEC5 /* Starling_Mac.framework */;
 			productType = "com.apple.product-type.framework";
@@ -254,6 +264,9 @@
 				Base,
 			);
 			mainGroup = C9E8A462217BAB9700F3FEC5;
+			packageReferences = (
+				63B12B632925AA8A00F3251E /* XCRemoteSwiftPackageReference "ExceptionCatcher" */,
+			);
 			productRefGroup = C9E8A46F217BABAD00F3FEC5 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -836,6 +849,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		63B12B632925AA8A00F3251E /* XCRemoteSwiftPackageReference "ExceptionCatcher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/ExceptionCatcher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		63B12B642925AA8A00F3251E /* ExceptionCatcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 63B12B632925AA8A00F3251E /* XCRemoteSwiftPackageReference "ExceptionCatcher" */;
+			productName = ExceptionCatcher;
+		};
+		63B12B662925AAB300F3251E /* ExceptionCatcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 63B12B632925AA8A00F3251E /* XCRemoteSwiftPackageReference "ExceptionCatcher" */;
+			productName = ExceptionCatcher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C9E8A463217BAB9700F3FEC5 /* Project object */;
 }

@@ -24,6 +24,7 @@
 
 import Foundation
 import AVFoundation
+import ExceptionCatcher
 
 /// Typealias used for identifying specific sound effects
 public typealias SoundIdentifier = String
@@ -34,6 +35,7 @@ enum StarlingError: Error {
     case invalidSoundIdentifier(name: String)
     case audioLoadingFailure
     case engineIsStopped
+    case playbackFailure(details: String)
 }
 
 public class Starling {
@@ -136,7 +138,11 @@ public class Starling {
             guard let player = firstAvailablePlayer() else { return }
 
             objc_sync_enter(players)
-            player.play(audio, identifier: sound)
+            do {
+                try player.play(audio, identifier: sound)
+            } catch {
+                handleNonFatalError(StarlingError.playbackFailure(details: error.localizedDescription))
+            }
             objc_sync_exit(players)
         }
         
@@ -291,13 +297,18 @@ private class StarlingAudioPlayer {
     let node = AVAudioPlayerNode()
     var state: PlayerState = PlayerState.idle()
     
-    func play(_ file: AVAudioFile, identifier: SoundIdentifier) {
+    func play(_ file: AVAudioFile, identifier: SoundIdentifier) throws {
         node.scheduleFile(file, at: nil, completionCallbackType: .dataPlayedBack) {
             [weak self] callbackType in
             self?.didCompletePlayback(for: identifier)
         }
         state = PlayerState(sound: identifier, status: .playing)
-        node.play()
+        do {
+            try ExceptionCatcher.catch { node.play() }
+        } catch {
+            state = .idle()
+            throw error
+        }
     }
     
     func stop(identifier: SoundIdentifier) {
@@ -323,6 +334,8 @@ extension StarlingError: CustomStringConvertible {
             return "Could not load audio data"
         case .engineIsStopped:
             return "The audio engine is stopped"
+        case .playbackFailure(let details):
+            return "Playback failed: \(details)"
         }
     }
 }
