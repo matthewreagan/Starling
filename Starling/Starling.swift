@@ -10,10 +10,10 @@
 //  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //  copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  The above copyright notice and this permission notice shall be included in all
 //  copies or substantial portions of the Software.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,6 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
-
 import Foundation
 import AVFoundation
 
@@ -52,12 +51,12 @@ public class Starling {
     
  // MARK: - Internal Properties
     
+    private var volume : Float = 1.0
     private var players: [StarlingAudioPlayer]
     private var files: [String: AVAudioFile]
     private let engine = AVAudioEngine()
 
     // MARK: - Error handling
-
     public static var nonFatalErrorHandler: ((Error) -> Void)? = nil
 
     // MARK: - Initializer
@@ -111,6 +110,17 @@ public class Starling {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             self?.performSoundStop(sound)
         }
+    }
+    
+    public func setVolume(to level: Float) {
+        volume = level
+        for player in players {
+            player.setVolume(to: volume)
+        }
+    }
+    
+    public func getVolume() -> Float {
+        return volume
     }
 
     // MARK: - Internal Functions
@@ -290,6 +300,7 @@ private struct PlayerState {
 private class StarlingAudioPlayer {
     let node = AVAudioPlayerNode()
     var state: PlayerState = PlayerState.idle()
+    var volume: Float = 1.0
     
     func play(_ file: AVAudioFile, identifier: SoundIdentifier) {
         node.scheduleFile(file, at: nil, completionCallbackType: .dataPlayedBack) {
@@ -310,6 +321,12 @@ private class StarlingAudioPlayer {
     func didCompletePlayback(for sound: SoundIdentifier) {
         state = PlayerState.idle()
     }
+    
+    func setVolume(to level: Float){
+        volume = level
+        node.volume = volume
+    }
+    
 }
 
 extension StarlingError: CustomStringConvertible {
