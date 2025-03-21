@@ -113,6 +113,13 @@ public class Starling {
             self?.performSoundStop(sound)
         }
     }
+  
+    /// Immediately stop all currently playing sounds
+    public func stopAll() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.performSoundStopAll()
+        }
+    }
     
     public func setVolume(to level: Float) {
         volume = level
@@ -175,6 +182,19 @@ public class Starling {
           }
       }
   }
+    
+    /// Stop all currently playing sounds
+    /// - If the player is not in the .idle state while iterating over it, it will stop immediately, regardless of SoundIdentifier.
+    public func performSoundStopAll() {
+        objc_sync_enter(players)
+        defer { objc_sync_exit(players) }
+        
+        for player in players {
+            if player.state.status != .idle {
+                player.stop()
+            }
+        }
+    }
 
     private func soundIsCurrentlyPlaying(_ sound: SoundIdentifier) -> Bool {
         objc_sync_enter(players)
@@ -324,6 +344,14 @@ private class StarlingAudioPlayer {
     
     func stop(identifier: SoundIdentifier) {
         if state.status != .idle && state.sound == identifier {
+            node.stop()
+            state = .idle()
+        }
+    }
+    
+    /// Ignore SoundIdentifier and immediately stop the currently playing player.
+    func stop() {
+        if state.status != .idle {
             node.stop()
             state = .idle()
         }
