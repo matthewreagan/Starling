@@ -98,13 +98,13 @@ public class Starling {
     
     // MARK: - Public API (Playback)
     
-    public func play(_ sound: SoundIdentifier, allowOverlap: Bool = true) {
+    public func play(_ sound: SoundIdentifier, allowOverlap: Bool = true, volume: Float = 1.0, finishedPlaying: @escaping () -> () = {}) {
         if !engine.isRunning && !startEngine() {
             resetPlayersAndEngine()
         }
         
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.performSoundPlayback(sound, allowOverlap: allowOverlap)
+            self?.performSoundPlayback(sound, allowOverlap: allowOverlap, volume: volume, finishedPlaying: finishedPlaying)
         }
     }
     
@@ -127,7 +127,7 @@ public class Starling {
 
     // MARK: - Internal Functions
     
-    private func performSoundPlayback(_ sound: SoundIdentifier, allowOverlap: Bool) {
+    private func performSoundPlayback(_ sound: SoundIdentifier, allowOverlap: Bool, volume: Float = 1.0, finishedPlaying: @escaping () -> ()) {
         // Note: self is used as the lock pointer here to avoid
         // the possibility of locking on _swiftEmptyDictionaryStorage
         objc_sync_enter(self)
@@ -149,7 +149,7 @@ public class Starling {
 
             objc_sync_enter(players)
             do {
-                try player.play(audio, identifier: sound)
+                try player.play(audio, identifier: sound, volume: volume, finishedPlaying: finishedPlaying)
             } catch {
                 handleNonFatalError(StarlingError.playbackFailure(details: error.localizedDescription))
             }
@@ -308,13 +308,16 @@ private class StarlingAudioPlayer {
     var state: PlayerState = PlayerState.idle()
     var volume: Float = 1.0
     
-    func play(_ file: AVAudioFile, identifier: SoundIdentifier) throws {
+    func play(_ file: AVAudioFile, identifier: SoundIdentifier, volume: Float, finishedPlaying: @escaping () -> ()) throws {
         node.scheduleFile(file, at: nil, completionCallbackType: .dataPlayedBack) {
             [weak self] callbackType in
             self?.didCompletePlayback(for: identifier)
+            finishedPlaying()
         }
         state = PlayerState(sound: identifier, status: .playing)
+        
         do {
+            setVolume(to: volume)
             try ExceptionCatcher.catch { node.play() }
         } catch {
             state = .idle()
