@@ -2,6 +2,8 @@
 
 **Starling** is a simple audio library for **iOS + macOS** written in **Swift**. It provides _low-latency_ sound resource playback for games, real-time media solutions, or other performance-critical applications. It is built around Apple's [AVAudioEngine](https://developer.apple.com/documentation/avfoundation/avaudioengine) and simplifies the API in an effort to reduce the amount of boilerplate needed for basic audio playback.
 
+⚠️ Starling is no longer actively maintained. Thank you to those of you who submitted various fixes and improvements.
+
 ## Goal
 
 **Starling** is built for simple & fast audio file playback. It is designed to be as easy to use as possible, and to provide a minimal API which abstracts the under-the-hood interaction with [AVFoundation](https://developer.apple.com/av-foundation/).
